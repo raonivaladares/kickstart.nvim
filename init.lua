@@ -609,7 +609,12 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
+        ts_ls = {},
+
+        -- Biome LSP for JavaScript/TypeScript linting and formatting
+        biome = {
+          filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'json', 'jsonc' },
+        },
 
         stylua = {}, -- Used to format Lua code
 
@@ -650,7 +655,19 @@ require('lazy').setup({
       --    :Mason
       --
       -- You can press `g?` for help in this menu.
-      local ensure_installed = vim.tbl_keys(servers or {})
+
+      -- Note: For some LSPs, the config name differs from the Mason package name
+      -- (e.g., ts_ls config uses typescript-language-server package)
+      local ensure_installed = {}
+      for server_name, _ in pairs(servers or {}) do
+        -- Map LSP config names to Mason package names
+        if server_name == 'ts_ls' then
+          table.insert(ensure_installed, 'typescript-language-server')
+        else
+          table.insert(ensure_installed, server_name)
+        end
+      end
+
       vim.list_extend(ensure_installed, {
         -- You can add other tools here that you want Mason to install
       })
@@ -760,7 +777,7 @@ require('lazy').setup({
         -- <c-k>: Toggle signature help
         --
         -- See :h blink-cmp-config-keymap for defining your own keymap
-        preset = 'default',
+        preset = 'super-tab', -- Use Tab to accept completions
 
         -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
@@ -940,7 +957,7 @@ require('lazy').setup({
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
   --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
