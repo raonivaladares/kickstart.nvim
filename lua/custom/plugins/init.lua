@@ -38,9 +38,20 @@ return {
     end,
   },
   {
+    'mfussenegger/nvim-dap',
+    keys = {
+      { '<leader>dc', function() require('dap').continue() end, desc = '[D]ebug [C]ontinue' },
+      { '<leader>db', function() require('dap').toggle_breakpoint() end, desc = '[D]ebug [B]reakpoint' },
+      { '<leader>dso', function() require('dap').step_over() end, desc = '[D]ebug [S]tep [O]ver' },
+      { '<leader>dsi', function() require('dap').step_into() end, desc = '[D]ebug [S]tep [I]nto' },
+      { '<leader>dq', function() require('dap').terminate() end, desc = '[D]ebug [Q]uit' },
+    },
+  },
+  {
     'scalameta/nvim-metals',
     dependencies = {
       'nvim-lua/plenary.nvim',
+      'mfussenegger/nvim-dap',
     },
     ft = { 'scala', 'sbt', 'java' },
     opts = function()
@@ -54,11 +65,20 @@ return {
       return metals_config
     end,
     config = function(self, metals_config)
+      local metals = require 'metals'
+      local dap = require 'dap'
+
+      dap.configurations.scala = {
+        { type = 'scala', request = 'launch', name = 'Run file', metals = { runType = 'runOrTestFile' } },
+        { type = 'scala', request = 'launch', name = 'Test target', metals = { runType = 'testTarget' } },
+      }
+
       local group = vim.api.nvim_create_augroup('nvim-metals', { clear = true })
       vim.api.nvim_create_autocmd('FileType', {
         pattern = self.ft,
         callback = function()
-          require('metals').initialize_or_attach(metals_config)
+          metals.initialize_or_attach(metals_config)
+          metals.setup_dap()
         end,
         group = group,
       })
