@@ -1,6 +1,6 @@
 local function gh(repo) return 'https://github.com/' .. repo end
 
-vim.pack.add { gh 'ahmedkhalf/project.nvim' }
+vim.pack.add { gh 'raonivaladares/project.nvim' }
 
 require('project_nvim').setup {
   detection_methods = { 'lsp', 'pattern' },
